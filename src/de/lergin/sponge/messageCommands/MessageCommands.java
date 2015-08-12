@@ -38,9 +38,7 @@ import org.spongepowered.api.service.config.DefaultConfig;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.util.command.spec.CommandSpec;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -61,21 +59,16 @@ public class MessageCommands {
     @Inject
     private Logger logger;
 
-
-    private ConfigurationNode getConfig() {
-        return rootNode;
-    }
+    @Inject
+    private Game game;
 
     private ConfigurationNode rootNode;
     private ResourceBundle resourceBundle;
 
-    @Inject
-    private static Game game;
-
     @Subscribe
-    public void onServerStart(){
+    public void onServerStart(ServerStartedEvent event){
         //load translation
-        resourceBundle = ResourceBundle.getBundle("resources/translation", Locale.GERMAN);
+        resourceBundle = ResourceBundle.getBundle("resources/translation");
 
         //load config
         try {
@@ -91,6 +84,7 @@ public class MessageCommands {
             }
         }
 
+        logger.info(resourceBundle.getString("plugin.initialized"));
 
         for ( Map.Entry<Object, ? extends ConfigurationNode> entry :
                 rootNode.getNode("commands").getChildrenMap().entrySet())
@@ -98,22 +92,30 @@ public class MessageCommands {
             ConfigurationNode node = entry.getValue();
 
             //create command
-            CommandSpec commandSpec = CommandSpec.builder()
-                    .description(
-                            util.getTextFromJson(node.getNode("description").getString(""))
-                    )
-                    .extendedDescription(
-                            util.getTextFromJson(node.getNode("extendedDescription").getString(""))
-                    )
-                    .permission(
-                            node.getNode("permission").getString("")
-                    )
+            CommandSpec.Builder commandSpecBuilder = CommandSpec.builder()
                     .executor(
                             new messageCommandExecutor(
                                     util.getTextFromJson(node.getNode("message").getString(""))
                             )
-                    )
-                    .build();
+                    );
+
+            if(Boolean.valueOf(node.getNode("permission").getString("false"))){
+                commandSpecBuilder.permission(node.getNode("permission").getString());
+            }
+
+            if(Boolean.valueOf(node.getNode("description").getString("false"))){
+                commandSpecBuilder.description(
+                        util.getTextFromJson(node.getNode("description").getString())
+                );
+            }
+
+            if(Boolean.valueOf(node.getNode("extendedDescription").getString("false"))){
+                commandSpecBuilder.extendedDescription(
+                        util.getTextFromJson(node.getNode("extendedDescription").getString())
+                );
+            }
+
+            CommandSpec commandSpec = commandSpecBuilder.build();
 
             try {
                 //register command
@@ -130,12 +132,10 @@ public class MessageCommands {
 
             logger.info("Command \"" + entry.getKey() + "\" initialized");
         }
-
-        logger.info(resourceBundle.getString("plugin.initialized"));
     }
 
     @Subscribe
-    public void onServerStop(){
+    public void onServerStop(ServerStoppingEvent event){
         try {
             configManager.save(rootNode);
         } catch (IOException e) {

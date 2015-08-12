@@ -35,7 +35,10 @@ public class util {
      * @return the text object
      */
     public static Text getTextFromJson(String text){
-        return Texts.json().fromUnchecked(text);
+        if(text.length() > 0)
+            return Texts.json().fromUnchecked(text);
+
+        return Texts.of(text);
     }
 
     /**
