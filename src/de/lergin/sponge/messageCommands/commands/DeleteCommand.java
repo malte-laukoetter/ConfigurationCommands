@@ -22,9 +22,11 @@
 
 package de.lergin.sponge.messageCommands.commands;
 
+import de.lergin.sponge.messageCommands.CommandSetting;
 import de.lergin.sponge.messageCommands.MessageCommands;
 import de.lergin.sponge.messageCommands.util;
 import ninja.leaping.configurate.ConfigurationNode;
+import org.spongepowered.api.Game;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.util.command.CommandException;
 import org.spongepowered.api.util.command.CommandResult;
@@ -35,41 +37,35 @@ import org.spongepowered.api.util.command.spec.CommandExecutor;
 import java.util.Arrays;
 
 /**
- *
+ * command for editing commands
  */
-public class AddCommand implements CommandExecutor {
+public class DeleteCommand implements CommandExecutor {
+
     private final MessageCommands plugin;
 
-    public AddCommand(MessageCommands plugin) {
+    public DeleteCommand(MessageCommands plugin) {
         this.plugin = plugin;
     }
 
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        ConfigurationNode node = plugin.rootNode.getNode("commands", args.getOne("name").get().toString());
 
+        ConfigurationNode node = (ConfigurationNode) args.getOne("name").get();
 
-        node.getNode("message").setValue(
-                args.getOne("message").get().toString()
-        );
+        String key = node.getKey().toString();
 
-        node.getNode("commands").setValue(
-                Arrays.asList(args.getOne("command").get().toString().split(" "))
-        );
-
-
+        node.getParent().removeChild(node.getKey());
 
         util.saveConfig();
-        util.registerCommand(node);
+        util.deleteCommand(key);
 
-
-        plugin.commandMap.put(node.getKey().toString(), node);
+        plugin.commandMap.remove(key);
+        plugin.confCommands.remove(key);
 
         util.updateEditCmd();
         util.updateDeleteCmd();
 
-        src.sendMessage(Texts.of("[confCmd] Command \"" + node.getKey() + "\" added."));
-
+        src.sendMessage(Texts.of("[confCmd] Command \"" + key + "\" deleted."));
 
         return CommandResult.success();
     }

@@ -1,28 +1,29 @@
 /*
- * Copyright (c) 2015 Malte 'Lergin' Laukötter
+ * Copyright (c) 2015. Malte 'Lergin' Laukötter
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ *  The above copyright notice and this permission notice shall be included in
+ *  all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ *  THE SOFTWARE.
  */
 
 package de.lergin.sponge.messageCommands;
 
 import com.google.common.reflect.TypeToken;
+import de.lergin.sponge.messageCommands.commands.DeleteCommand;
 import de.lergin.sponge.messageCommands.commands.EditCommand;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
@@ -85,11 +86,18 @@ public class util {
      * @param node the configuration node of the command
      */
     public static void reloadCommand(ConfigurationNode node){
-        plugin.game.getCommandDispatcher().removeMapping(
-            plugin.confCommands.get(node.getKey().toString())
-        );
-
+        deleteCommand(node.getKey().toString());
         registerCommand(node);
+    }
+
+    /**
+     * reloads the command
+     * @param node the configuration node of the command
+     */
+    public static void deleteCommand(String key){
+        plugin.game.getCommandDispatcher().removeMapping(
+                plugin.confCommands.get(key)
+        );
     }
 
     /**
@@ -105,17 +113,17 @@ public class util {
                         )
                 );
 
-        if(Boolean.valueOf(node.getNode("permission").getString("false"))){
+        if(!node.getNode("permission").isVirtual()){
             commandSpecBuilder.permission(node.getNode("permission").getString());
         }
 
-        if(Boolean.valueOf(node.getNode("description").getString("false"))){
+        if(!node.getNode("description").isVirtual()){
             commandSpecBuilder.description(
                     util.getTextFromJson(node.getNode("description").getString())
             );
         }
 
-        if(Boolean.valueOf(node.getNode("extendedDescription").getString("false"))){
+        if(!node.getNode("extendedDescription").isVirtual()){
             commandSpecBuilder.extendedDescription(
                     util.getTextFromJson(node.getNode("extendedDescription").getString())
             );
@@ -142,12 +150,18 @@ public class util {
         }
     }
 
+    /**
+     * updates the edit command (eg. to reload the autocomplete)
+     */
     public static void updateEditCmd(){
         plugin.game.getCommandDispatcher().removeMapping(plugin.editCommand);
 
         createEditCmd();
     }
 
+    /**
+     * creates the edit command
+     */
     public static void createEditCmd(){
         CommandSpec editCmd = CommandSpec.builder()
                 .permission("confCmd.edit")
@@ -164,6 +178,35 @@ public class util {
         plugin.editCommand = plugin.game.getCommandDispatcher().register(plugin,
                 editCmd,
                 "editCmd"
+        ).get();
+    }
+
+    /**
+     * updates the delete command (eg. to reload the autocomplete)
+     */
+    public static void updateDeleteCmd(){
+        plugin.game.getCommandDispatcher().removeMapping(plugin.deleteCommand);
+
+        createDeleteCmd();
+    }
+
+    /**
+     * creates the delete command
+     */
+    public static void createDeleteCmd(){
+        CommandSpec deleteCmd = CommandSpec.builder()
+                .permission("confCmd.delete")
+                .description(Texts.of("deletes a command"))
+                .extendedDescription(Texts.of("Deletes the command from confCmd"))
+                .executor(new DeleteCommand(plugin))
+                .arguments(
+                        GenericArguments.choices(Texts.of("name"), plugin.commandMap)
+                )
+                .build();
+
+        plugin.deleteCommand = plugin.game.getCommandDispatcher().register(plugin,
+                deleteCmd,
+                "deleteCmd"
         ).get();
     }
 }
