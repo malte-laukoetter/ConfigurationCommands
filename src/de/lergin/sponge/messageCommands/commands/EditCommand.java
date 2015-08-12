@@ -10,7 +10,6 @@ import org.spongepowered.api.util.command.CommandSource;
 import org.spongepowered.api.util.command.args.CommandContext;
 import org.spongepowered.api.util.command.spec.CommandExecutor;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 /**

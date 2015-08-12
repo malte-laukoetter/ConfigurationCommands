@@ -1,5 +1,6 @@
 package de.lergin.sponge.messageCommands.commands;
 
+import de.lergin.sponge.messageCommands.MessageCommands;
 import de.lergin.sponge.messageCommands.util;
 import ninja.leaping.configurate.ConfigurationNode;
 import org.spongepowered.api.util.command.CommandException;
@@ -14,15 +15,15 @@ import java.util.Arrays;
  *
  */
 public class AddCommand implements CommandExecutor {
-    private ConfigurationNode rootNode;
+    private MessageCommands plugin;
 
-    public AddCommand(ConfigurationNode rootNode) {
-        this.rootNode = rootNode;
+    public AddCommand(MessageCommands plugin) {
+        this.plugin = plugin;
     }
 
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        ConfigurationNode node = rootNode.getNode("commands", args.getOne("name").get().toString());
+        ConfigurationNode node = plugin.rootNode.getNode("commands", args.getOne("name").get().toString());
 
 
         node.getNode("message").setValue(
@@ -33,9 +34,15 @@ public class AddCommand implements CommandExecutor {
                 Arrays.asList(args.getOne("command").get().toString().split(" "))
         );
 
+
+
         util.saveConfig();
         util.registerCommand(node);
 
+
+        plugin.commandMap.put(node.getKey().toString(), node);
+
+        util.updateEditCmd();
 
         return CommandResult.success();
     }

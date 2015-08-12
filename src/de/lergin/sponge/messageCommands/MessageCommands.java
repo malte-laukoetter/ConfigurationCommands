@@ -67,6 +67,9 @@ public class MessageCommands {
     public ConfigurationNode rootNode;
     public ResourceBundle resourceBundle;
     public HashMap<String, CommandMapping> confCommands = new HashMap<>();
+    public HashMap<String, ConfigurationNode> commandMap = new HashMap<>();
+    public HashMap<String, CommandSetting> commandSettings = new HashMap<>();
+    public CommandMapping editCommand;
 
 
     @Subscribe
@@ -85,16 +88,11 @@ public class MessageCommands {
             util.saveConfig();
         }
 
-        HashMap<String, CommandSetting> commandSettings = new HashMap<>();
-
         commandSettings.put("message", CommandSetting.MESSAGE);
         commandSettings.put("description", CommandSetting.DESCRIPTION);
         commandSettings.put("extendedDescription", CommandSetting.EXTENDEDDESCRIPTION);
         commandSettings.put("permission", CommandSetting.PERMISSION);
         commandSettings.put("command", CommandSetting.COMMAND);
-
-
-        HashMap<String, ConfigurationNode> commandMap = new HashMap<>();
 
         for ( Map.Entry<Object, ? extends ConfigurationNode> entry :
                 rootNode.getNode("commands").getChildrenMap().entrySet()) {
@@ -106,7 +104,7 @@ public class MessageCommands {
                 .permission("confCmd.add")
                 .description(Texts.of("Add a new command"))
                 .extendedDescription(Texts.of("Add a new command with confCmd"))
-                .executor(new AddCommand(rootNode))
+                .executor(new AddCommand(this))
                 .arguments(
                         GenericArguments.string(Texts.of("name")),
                         GenericArguments.string(Texts.of("command")),
@@ -114,27 +112,13 @@ public class MessageCommands {
                 )
                 .build();
 
-        game.getCommandDispatcher().register(this,
+        editCommand = game.getCommandDispatcher().register(this,
                 addCmd,
                 "addCmd"
-        );
+        ).get();
 
 
-        CommandSpec editCmd = CommandSpec.builder()
-                .permission("confCmd.edit")
-                .description(Texts.of("Edit a command"))
-                .extendedDescription(Texts.of("edit a command created with confCmd"))
-                .executor(new EditCommand())
-                .arguments(
-                        GenericArguments.choices(Texts.of("setting"), commandSettings),
-                        GenericArguments.choices(Texts.of("name"), commandMap),
-                        GenericArguments.remainingJoinedStrings(Texts.of("value"))
-                ).build();
-
-        game.getCommandDispatcher().register(this,
-                editCmd,
-                "editCmd"
-        );
+        util.createEditCmd();
 
         logger.info(resourceBundle.getString("plugin.initialized"));
 

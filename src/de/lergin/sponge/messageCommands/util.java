@@ -23,10 +23,12 @@
 package de.lergin.sponge.messageCommands;
 
 import com.google.common.reflect.TypeToken;
+import de.lergin.sponge.messageCommands.commands.EditCommand;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
+import org.spongepowered.api.util.command.args.GenericArguments;
 import org.spongepowered.api.util.command.spec.CommandSpec;
 
 import java.io.IOException;
@@ -138,5 +140,30 @@ public class util {
             plugin.logger.warn("Your using the same command multiple times: ");
             plugin.logger.warn(e.getLocalizedMessage());
         }
+    }
+
+    public static void updateEditCmd(){
+        plugin.game.getCommandDispatcher().removeMapping(plugin.editCommand);
+
+        createEditCmd();
+    }
+
+    public static void createEditCmd(){
+        CommandSpec editCmd = CommandSpec.builder()
+                .permission("confCmd.edit")
+                .description(Texts.of("Edit a command"))
+                .extendedDescription(Texts.of("edit a command created with confCmd"))
+                .executor(new EditCommand())
+                .arguments(
+                        GenericArguments.choices(Texts.of("setting"), plugin.commandSettings),
+                        GenericArguments.choices(Texts.of("name"), plugin.commandMap),
+                        GenericArguments.remainingJoinedStrings(Texts.of("value"))
+                )
+                .build();
+
+        plugin.editCommand = plugin.game.getCommandDispatcher().register(plugin,
+                editCmd,
+                "editCmd"
+        ).get();
     }
 }
