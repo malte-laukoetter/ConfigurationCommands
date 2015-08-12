@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Malte 'Lergin' Laukötter
+ * Copyright (c) 2015 Malte 'Lergin' Laukï¿½tter
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,13 +22,13 @@
 
 package de.lergin.sponge.messageCommands;
 
-import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
+import de.lergin.sponge.messageCommands.commands.AddCommand;
+import de.lergin.sponge.messageCommands.commands.EditCommand;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
-import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.slf4j.Logger;
 import org.spongepowered.api.event.Subscribe;
 import org.spongepowered.api.event.state.ServerStartedEvent;
@@ -36,11 +36,13 @@ import org.spongepowered.api.event.state.ServerStoppingEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.service.config.DefaultConfig;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.text.Texts;
+import org.spongepowered.api.util.command.CommandMapping;
+import org.spongepowered.api.util.command.args.GenericArguments;
 import org.spongepowered.api.util.command.spec.CommandSpec;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 /**
  * main class
@@ -54,19 +56,23 @@ import java.util.ResourceBundle;
 public class MessageCommands {
     @Inject
     @DefaultConfig(sharedRoot = true)
-    private ConfigurationLoader<CommentedConfigurationNode> configManager;
+    public ConfigurationLoader<CommentedConfigurationNode> configManager;
 
     @Inject
-    private Logger logger;
+    public Logger logger;
 
     @Inject
-    private Game game;
+    public Game game;
 
-    private ConfigurationNode rootNode;
-    private ResourceBundle resourceBundle;
+    public ConfigurationNode rootNode;
+    public ResourceBundle resourceBundle;
+    public HashMap<String, CommandMapping> confCommands = new HashMap<>();
+
 
     @Subscribe
     public void onServerStart(ServerStartedEvent event){
+        util.setPlugin(this);
+
         //load translation
         resourceBundle = ResourceBundle.getBundle("resources/translation");
 
@@ -76,59 +82,68 @@ public class MessageCommands {
         } catch(IOException e) {
             rootNode = configManager.createEmptyNode(ConfigurationOptions.defaults());
 
-            try {
-                configManager.save(rootNode);
-            } catch (IOException ex) {
-                logger.error(resourceBundle.getString("failed.to.write.config"));
-                logger.error(ex.getMessage());
-            }
+            util.saveConfig();
         }
 
+        HashMap<String, CommandSetting> commandSettings = new HashMap<>();
+
+        commandSettings.put("message", CommandSetting.MESSAGE);
+        commandSettings.put("description", CommandSetting.DESCRIPTION);
+        commandSettings.put("extendedDescription", CommandSetting.EXTENDEDDESCRIPTION);
+        commandSettings.put("permission", CommandSetting.PERMISSION);
+        commandSettings.put("command", CommandSetting.COMMAND);
+
+
+        HashMap<String, ConfigurationNode> commandMap = new HashMap<>();
+
+        for ( Map.Entry<Object, ? extends ConfigurationNode> entry :
+                rootNode.getNode("commands").getChildrenMap().entrySet()) {
+            commandMap.put(entry.getKey().toString(), entry.getValue());
+        }
+
+
+        CommandSpec addCmd = CommandSpec.builder()
+                .permission("confCmd.add")
+                .description(Texts.of("Add a new command"))
+                .extendedDescription(Texts.of("Add a new command with confCmd"))
+                .executor(new AddCommand(rootNode))
+                .arguments(
+                        GenericArguments.string(Texts.of("name")),
+                        GenericArguments.string(Texts.of("command")),
+                        GenericArguments.remainingJoinedStrings(Texts.of("message"))
+                )
+                .build();
+
+        game.getCommandDispatcher().register(this,
+                addCmd,
+                "addCmd"
+        );
+
+
+        CommandSpec editCmd = CommandSpec.builder()
+                .permission("confCmd.edit")
+                .description(Texts.of("Edit a command"))
+                .extendedDescription(Texts.of("edit a command created with confCmd"))
+                .executor(new EditCommand())
+                .arguments(
+                        GenericArguments.choices(Texts.of("setting"), commandSettings),
+                        GenericArguments.choices(Texts.of("name"), commandMap),
+                        GenericArguments.remainingJoinedStrings(Texts.of("value"))
+                ).build();
+
+        game.getCommandDispatcher().register(this,
+                editCmd,
+                "editCmd"
+        );
+
         logger.info(resourceBundle.getString("plugin.initialized"));
+
+
 
         for ( Map.Entry<Object, ? extends ConfigurationNode> entry :
                 rootNode.getNode("commands").getChildrenMap().entrySet())
         {
-            ConfigurationNode node = entry.getValue();
-
-            //create command
-            CommandSpec.Builder commandSpecBuilder = CommandSpec.builder()
-                    .executor(
-                            new messageCommandExecutor(
-                                    util.getTextFromJson(node.getNode("message").getString(""))
-                            )
-                    );
-
-            if(Boolean.valueOf(node.getNode("permission").getString("false"))){
-                commandSpecBuilder.permission(node.getNode("permission").getString());
-            }
-
-            if(Boolean.valueOf(node.getNode("description").getString("false"))){
-                commandSpecBuilder.description(
-                        util.getTextFromJson(node.getNode("description").getString())
-                );
-            }
-
-            if(Boolean.valueOf(node.getNode("extendedDescription").getString("false"))){
-                commandSpecBuilder.extendedDescription(
-                        util.getTextFromJson(node.getNode("extendedDescription").getString())
-                );
-            }
-
-            CommandSpec commandSpec = commandSpecBuilder.build();
-
-            try {
-                //register command
-                game.getCommandDispatcher().register(this,
-                        commandSpec,
-                        node.getNode("aliase").getList(TypeToken.of(String.class))
-                );
-            } catch (ObjectMappingException e) {
-                logger.error(e.getMessage());
-            } catch (IllegalArgumentException e){
-                logger.warn("Your using the same alias multiple times: ");
-                logger.warn(e.getLocalizedMessage());
-            }
+            util.registerCommand(entry.getValue());
 
             logger.info("Command \"" + entry.getKey() + "\" initialized");
         }
@@ -136,13 +151,6 @@ public class MessageCommands {
 
     @Subscribe
     public void onServerStop(ServerStoppingEvent event){
-        try {
-            configManager.save(rootNode);
-        } catch (IOException e) {
-            logger.error(resourceBundle.getString("failed.to.write.config"));
-            logger.error(e.getMessage());
-        }
-
         logger.info(resourceBundle.getString("plugin.stopped"));
     }
 }

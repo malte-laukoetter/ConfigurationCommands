@@ -10,10 +10,10 @@ import org.spongepowered.api.util.command.spec.CommandExecutor;
 /**
  *
  */
-public class messageCommandExecutor implements CommandExecutor {
+public class MessageCommandExecutor implements CommandExecutor {
     private final Text message;
 
-    public messageCommandExecutor(Text message) {
+    public MessageCommandExecutor(Text message) {
         this.message = message;
     }
 

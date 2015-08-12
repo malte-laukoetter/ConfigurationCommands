@@ -22,13 +22,26 @@
 
 package de.lergin.sponge.messageCommands;
 
+import com.google.common.reflect.TypeToken;
+import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
+import org.spongepowered.api.util.command.spec.CommandSpec;
+
+import java.io.IOException;
 
 /**
  * helper methodes
  */
 public class util {
+    private static MessageCommands plugin;
+
+    public static void setPlugin(MessageCommands plugin){
+        util.plugin = plugin;
+    }
+
+
     /**
      * returns a text object that is created from a json string
      * @param text the json string
@@ -51,5 +64,79 @@ public class util {
         return Texts.json().fromUnchecked(
                 String.format(text, arguments)
         );
+    }
+
+    /**
+     * saves the config
+     */
+    public static void saveConfig(){
+        try {
+            plugin.configManager.save(plugin.rootNode);
+        } catch (IOException ex) {
+            plugin.logger.error(plugin.resourceBundle.getString("failed.to.write.config"));
+            plugin.logger.error(ex.getMessage());
+        }
+    }
+
+    /**
+     * reloads the command
+     * @param node the configuration node of the command
+     */
+    public static void reloadCommand(ConfigurationNode node){
+        plugin.game.getCommandDispatcher().removeMapping(
+            plugin.confCommands.get(node.getKey().toString())
+        );
+
+        registerCommand(node);
+    }
+
+    /**
+     * registers a command from a configuration node
+     * @param node the configuration node of the command
+     */
+    public static void registerCommand(ConfigurationNode node){
+        //create command
+        CommandSpec.Builder commandSpecBuilder = CommandSpec.builder()
+                .executor(
+                        new MessageCommandExecutor(
+                                util.getTextFromJson(node.getNode("message").getString(""))
+                        )
+                );
+
+        if(Boolean.valueOf(node.getNode("permission").getString("false"))){
+            commandSpecBuilder.permission(node.getNode("permission").getString());
+        }
+
+        if(Boolean.valueOf(node.getNode("description").getString("false"))){
+            commandSpecBuilder.description(
+                    util.getTextFromJson(node.getNode("description").getString())
+            );
+        }
+
+        if(Boolean.valueOf(node.getNode("extendedDescription").getString("false"))){
+            commandSpecBuilder.extendedDescription(
+                    util.getTextFromJson(node.getNode("extendedDescription").getString())
+            );
+        }
+
+        CommandSpec commandSpec = commandSpecBuilder.build();
+
+        try {
+            //register command
+            plugin.confCommands.put(
+                    node.getKey().toString(),
+                    plugin.game.getCommandDispatcher().register(plugin,
+                            commandSpec,
+                            node.getNode("commands").getList(TypeToken.of(String.class))
+                    ).get()
+            );
+        } catch (IllegalStateException e){
+            plugin.logger.error("every command need at least one command");
+        } catch (ObjectMappingException e) {
+            plugin.logger.error(e.getMessage());
+        } catch (IllegalArgumentException e){
+            plugin.logger.warn("Your using the same command multiple times: ");
+            plugin.logger.warn(e.getLocalizedMessage());
+        }
     }
 }
