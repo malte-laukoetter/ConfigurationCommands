@@ -40,7 +40,10 @@ import org.spongepowered.api.util.command.CommandMapping;
 import org.spongepowered.api.util.command.args.GenericArguments;
 import org.spongepowered.api.util.command.spec.CommandSpec;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 
 /**
@@ -48,13 +51,13 @@ import java.util.*;
  */
 
 @Plugin(
-        id = "msgCom",
-        name = "MessageCommands",
-        version = "1.0-SNAPSHOT"
+        id = "confCmd",
+        name = "ConfigurationCommands",
+        version = "1.0"
 )
 public class MessageCommands {
     @Inject
-    @DefaultConfig(sharedRoot = true)
+    @DefaultConfig(sharedRoot = false)
     public ConfigurationLoader<CommentedConfigurationNode> configManager;
 
     @Inject
@@ -77,8 +80,16 @@ public class MessageCommands {
         util.setPlugin(this);
 
         //load translation
-        resourceBundle = ResourceBundle.getBundle("resources/translation");
+        try {
+            File file = new File("config/confCmd/");
+            URL[] urls = {file.toURI().toURL()};
+            ClassLoader loader = new URLClassLoader(urls);
+            resourceBundle = ResourceBundle.getBundle("translation", Locale.getDefault(), loader);
+        }catch(Exception ex) {
+            resourceBundle = ResourceBundle.getBundle("resources/translation");
 
+            logger.info(resourceBundle.getString("error.no.custom.translation"));
+        }
         //load config
         try {
             rootNode = configManager.load();
@@ -88,11 +99,21 @@ public class MessageCommands {
             util.saveConfig();
         }
 
-        commandSettings.put("message", CommandSetting.MESSAGE);
-        commandSettings.put("description", CommandSetting.DESCRIPTION);
-        commandSettings.put("extendedDescription", CommandSetting.EXTENDEDDESCRIPTION);
-        commandSettings.put("permission", CommandSetting.PERMISSION);
-        commandSettings.put("command", CommandSetting.COMMAND);
+        commandSettings.put(
+                resourceBundle.getString("command.param.message"),
+                CommandSetting.MESSAGE);
+        commandSettings.put(
+                resourceBundle.getString("command.param.description"),
+               CommandSetting.DESCRIPTION);
+        commandSettings.put(
+                resourceBundle.getString("command.param.extendedDescription"),
+               CommandSetting.EXTENDEDDESCRIPTION);
+        commandSettings.put(
+                resourceBundle.getString("command.param.permission"),
+                CommandSetting.PERMISSION);
+        commandSettings.put(
+                resourceBundle.getString("command.param.command"),
+                CommandSetting.COMMAND);
 
         for ( Map.Entry<Object, ? extends ConfigurationNode> entry :
                 rootNode.getNode("commands").getChildrenMap().entrySet()) {
@@ -102,19 +123,25 @@ public class MessageCommands {
 
         CommandSpec addCmd = CommandSpec.builder()
                 .permission("confCmd.add")
-                .description(Texts.of("Add a new command"))
-                .extendedDescription(Texts.of("Add a new command with confCmd"))
+                .description(util.getTextFromJsonByKey("command.add.description"))
+                .extendedDescription(util.getTextFromJsonByKey("command.add.extendedDescription"))
                 .executor(new AddCommand(this))
                 .arguments(
-                        GenericArguments.string(Texts.of("name")),
-                        GenericArguments.string(Texts.of("command")),
-                        GenericArguments.remainingJoinedStrings(Texts.of("message"))
+                        GenericArguments.string(Texts.of(
+                                resourceBundle.getString("command.param.name")
+                        )),
+                        GenericArguments.string(Texts.of(
+                                resourceBundle.getString("command.param.command")
+                        )),
+                        GenericArguments.remainingJoinedStrings(Texts.of(
+                                resourceBundle.getString("command.param.message")
+                        ))
                 )
                 .build();
 
         game.getCommandDispatcher().register(this,
                 addCmd,
-                "addCmd"
+                resourceBundle.getString("command.add.command")
         ).get();
 
 
@@ -132,7 +159,9 @@ public class MessageCommands {
         {
             util.registerCommand(entry.getValue());
 
-            logger.info("Command \"" + entry.getKey() + "\" initialized");
+            logger.info(
+                    String.format(resourceBundle.getString("command.initialized"), entry.getKey())
+            );
         }
     }
 

@@ -57,6 +57,21 @@ public class util {
         return Texts.of(text);
     }
 
+    public static Text getTextFromJsonByKey(String key, Object... arguments){
+        return getTextFromJson(
+                String.format(
+                        plugin.resourceBundle.getString(key), arguments
+                )
+        );
+    }
+
+    public static Text getTextFromJsonByKey(String key){
+        return getTextFromJson(
+                plugin.resourceBundle.getString(key)
+        );
+    }
+
+
     /**
      * returns a text object that is created from a json string
      * @param text the json string
@@ -76,7 +91,7 @@ public class util {
         try {
             plugin.configManager.save(plugin.rootNode);
         } catch (IOException ex) {
-            plugin.logger.error(plugin.resourceBundle.getString("failed.to.write.config"));
+            plugin.logger.error(plugin.resourceBundle.getString("error.config.write.failed"));
             plugin.logger.error(ex.getMessage());
         }
     }
@@ -91,8 +106,8 @@ public class util {
     }
 
     /**
-     * reloads the command
-     * @param node the configuration node of the command
+     * deletes the command
+     * @param key the key of the command
      */
     public static void deleteCommand(String key){
         plugin.game.getCommandDispatcher().removeMapping(
@@ -141,11 +156,15 @@ public class util {
                     ).get()
             );
         } catch (IllegalStateException e){
-            plugin.logger.error("every command need at least one command");
+            plugin.logger.error(
+                    plugin.resourceBundle.getString("error.commend.zero")
+            );
         } catch (ObjectMappingException e) {
             plugin.logger.error(e.getMessage());
         } catch (IllegalArgumentException e){
-            plugin.logger.warn("Your using the same command multiple times: ");
+            plugin.logger.warn(
+                    plugin.resourceBundle.getString("error.command.multiple.times")
+            );
             plugin.logger.warn(e.getLocalizedMessage());
         }
     }
@@ -165,19 +184,25 @@ public class util {
     public static void createEditCmd(){
         CommandSpec editCmd = CommandSpec.builder()
                 .permission("confCmd.edit")
-                .description(Texts.of("Edit a command"))
-                .extendedDescription(Texts.of("edit a command created with confCmd"))
-                .executor(new EditCommand())
+                .description(getTextFromJsonByKey("command.edit.description"))
+                .extendedDescription(getTextFromJsonByKey("command.edit.extendedDescription"))
+                .executor(new EditCommand(plugin))
                 .arguments(
-                        GenericArguments.choices(Texts.of("setting"), plugin.commandSettings),
-                        GenericArguments.choices(Texts.of("name"), plugin.commandMap),
-                        GenericArguments.remainingJoinedStrings(Texts.of("value"))
+                        GenericArguments.choices(Texts.of(
+                                plugin.resourceBundle.getString("command.param.setting")
+                        ), plugin.commandSettings),
+                        GenericArguments.choices(Texts.of(
+                                plugin.resourceBundle.getString("command.param.name")
+                        ), plugin.commandMap),
+                        GenericArguments.remainingJoinedStrings(Texts.of(
+                                plugin.resourceBundle.getString("command.param.value")
+                        ))
                 )
                 .build();
 
         plugin.editCommand = plugin.game.getCommandDispatcher().register(plugin,
                 editCmd,
-                "editCmd"
+                plugin.resourceBundle.getString("command.edit.command")
         ).get();
     }
 
@@ -196,17 +221,22 @@ public class util {
     public static void createDeleteCmd(){
         CommandSpec deleteCmd = CommandSpec.builder()
                 .permission("confCmd.delete")
-                .description(Texts.of("deletes a command"))
-                .extendedDescription(Texts.of("Deletes the command from confCmd"))
+                .description(util.getTextFromJsonByKey("command.delete.description"))
+                .extendedDescription(util.getTextFromJsonByKey("command.delete.extendedDescription"))
                 .executor(new DeleteCommand(plugin))
                 .arguments(
-                        GenericArguments.choices(Texts.of("name"), plugin.commandMap)
+                        GenericArguments.choices(
+                                Texts.of(
+                                        plugin.resourceBundle.getString("command.param.name")
+                                ),
+                                plugin.commandMap
+                        )
                 )
                 .build();
 
         plugin.deleteCommand = plugin.game.getCommandDispatcher().register(plugin,
                 deleteCmd,
-                "deleteCmd"
+                plugin.resourceBundle.getString("command.delete.command")
         ).get();
     }
 }

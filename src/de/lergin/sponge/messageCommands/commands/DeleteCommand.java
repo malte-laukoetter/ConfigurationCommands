@@ -22,19 +22,14 @@
 
 package de.lergin.sponge.messageCommands.commands;
 
-import de.lergin.sponge.messageCommands.CommandSetting;
 import de.lergin.sponge.messageCommands.MessageCommands;
 import de.lergin.sponge.messageCommands.util;
 import ninja.leaping.configurate.ConfigurationNode;
-import org.spongepowered.api.Game;
-import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.util.command.CommandException;
 import org.spongepowered.api.util.command.CommandResult;
 import org.spongepowered.api.util.command.CommandSource;
 import org.spongepowered.api.util.command.args.CommandContext;
 import org.spongepowered.api.util.command.spec.CommandExecutor;
-
-import java.util.Arrays;
 
 /**
  * command for editing commands
@@ -50,7 +45,9 @@ public class DeleteCommand implements CommandExecutor {
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 
-        ConfigurationNode node = (ConfigurationNode) args.getOne("name").get();
+        ConfigurationNode node = (ConfigurationNode) args.getOne(
+                plugin.resourceBundle.getString("command.param.name")
+        ).get();
 
         String key = node.getKey().toString();
 
@@ -65,7 +62,7 @@ public class DeleteCommand implements CommandExecutor {
         util.updateEditCmd();
         util.updateDeleteCmd();
 
-        src.sendMessage(Texts.of("[confCmd] Command \"" + key + "\" deleted."));
+        src.sendMessage(util.getTextFromJsonByKey("command.delete.success", key));
 
         return CommandResult.success();
     }

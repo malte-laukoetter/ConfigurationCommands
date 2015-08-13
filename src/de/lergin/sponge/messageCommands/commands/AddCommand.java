@@ -25,7 +25,6 @@ package de.lergin.sponge.messageCommands.commands;
 import de.lergin.sponge.messageCommands.MessageCommands;
 import de.lergin.sponge.messageCommands.util;
 import ninja.leaping.configurate.ConfigurationNode;
-import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.util.command.CommandException;
 import org.spongepowered.api.util.command.CommandResult;
 import org.spongepowered.api.util.command.CommandSource;
@@ -46,15 +45,26 @@ public class AddCommand implements CommandExecutor {
 
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        ConfigurationNode node = plugin.rootNode.getNode("commands", args.getOne("name").get().toString());
+        ConfigurationNode node = plugin.rootNode.getNode(
+                "commands",
+                args.getOne(
+                        plugin.resourceBundle.getString("command.param.name")
+                ).get().toString()
+        );
 
 
         node.getNode("message").setValue(
-                args.getOne("message").get().toString()
+                args.getOne(
+                        plugin.resourceBundle.getString("command.param.message")
+                ).get().toString()
         );
 
         node.getNode("commands").setValue(
-                Arrays.asList(args.getOne("command").get().toString().split(" "))
+                Arrays.asList(
+                        args.getOne(
+                            plugin.resourceBundle.getString("command.param.command")
+                        ).get().toString().split(" ")
+                )
         );
 
 
@@ -68,7 +78,7 @@ public class AddCommand implements CommandExecutor {
         util.updateEditCmd();
         util.updateDeleteCmd();
 
-        src.sendMessage(Texts.of("[confCmd] Command \"" + node.getKey() + "\" added."));
+        src.sendMessage(util.getTextFromJsonByKey("command.add.success", node.getKey()));
 
 
         return CommandResult.success();
