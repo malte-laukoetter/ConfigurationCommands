@@ -33,12 +33,14 @@ import org.spongepowered.api.event.Subscribe;
 import org.spongepowered.api.event.state.ServerStartedEvent;
 import org.spongepowered.api.event.state.ServerStoppingEvent;
 import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.config.DefaultConfig;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.util.command.CommandMapping;
 import org.spongepowered.api.util.command.args.GenericArguments;
 import org.spongepowered.api.util.command.spec.CommandSpec;
+import org.mcstats.Metrics;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,6 +67,9 @@ public class MessageCommands {
 
     @Inject
     public Game game;
+
+    @Inject
+    public PluginContainer container;
 
     public ConfigurationNode rootNode;
     public ResourceBundle resourceBundle;
@@ -97,6 +102,15 @@ public class MessageCommands {
             rootNode = configManager.createEmptyNode(ConfigurationOptions.defaults());
 
             util.saveConfig();
+        }
+
+
+
+        try {
+            Metrics metrics = new Metrics(game, container);
+            metrics.start();
+        } catch (IOException e) {
+            logger.info("failed to connect to mcStats");
         }
 
         commandSettings.put(
