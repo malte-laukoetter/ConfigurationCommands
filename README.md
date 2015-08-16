@@ -12,6 +12,8 @@ To add a command ingame you need to use the addCommand (/addcmd <name> <command>
 The first parameter is the name / identifier for the command, that you later need to edit or delete the command.
 The second parameter is a command that your users use to use the command, the last parameter is the message that is shown if the command is executed. To add a description, extended Description or a permission you need to edit the command with the editCmd.
 
+Example: /addcmd tsCommand ts ts: ts.domain.tld
+
 #### config
 
 
@@ -22,11 +24,11 @@ To edit a command ingame you need to use the command /editcmd [key] [commandName
 
 | Key | value | example|
 |----|:----:|---|
-|command| a list of commands | /editcmd command [commandName] command1 command2 | 
-|description| a text (can be in the json format) | /editcmd description [commandName] [{color:blue,text:\"A command\"}] | 
-|extendedDescription| a text (can be in the json format) | /editcmd extendedDescription [commandName] a realy long description of the command | 
-|message| a text (can be in the json format) | /editcmd message [commandName] [{color:blue,text:\"TS3:\"},{color:green,text:\" ts3.domain.tld\"}] | 
-|permission| a permission node | /editcmd permission [commandName] cmd.ts3 | 
+|command| a list of commands | /editcmd command tsCommand ts ts3 | 
+|description| a text (can be in the json format) | /editcmd description tsCommand [{color:blue,text:\"shows the ts ip\"}] | 
+|extendedDescription| a text (can be in the json format) | /editcmd extendedDescription tsCommand shows you the currnd ip of the teamspeak server | 
+|message| a text (can be in the json format) | /editcmd message tsCommand [{color:blue,text:\"TS3:\"},{color:green,text:\" ts3.domain.tld\"}] | 
+|permission| a permission node | /editcmd permission tsCommand cmd.ts3 | 
 
 #### config
 
