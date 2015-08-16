@@ -32,10 +32,7 @@ import org.spongepowered.api.util.command.CommandSource;
 import org.spongepowered.api.util.command.args.CommandContext;
 import org.spongepowered.api.util.command.spec.CommandExecutor;
 
-import javax.annotation.RegEx;
-import java.io.File;
 import java.util.Arrays;
-import java.util.regex.Pattern;
 
 /**
  * command for editing commands

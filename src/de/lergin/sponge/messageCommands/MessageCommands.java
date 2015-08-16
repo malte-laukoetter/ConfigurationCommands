@@ -86,7 +86,7 @@ public class MessageCommands {
 
         //load translation
         try {
-            File file = new File("config/confCmd/");
+            File file = new File("config" + File.separator + "confCmd");
             URL[] urls = {file.toURI().toURL()};
             ClassLoader loader = new URLClassLoader(urls);
             resourceBundle = ResourceBundle.getBundle("translation", Locale.getDefault(), loader);
@@ -110,7 +110,7 @@ public class MessageCommands {
             Metrics metrics = new Metrics(game, container);
             metrics.start();
         } catch (IOException e) {
-            logger.info("failed to connect to mcStats");
+            logger.info(resourceBundle.getString("error.no.connection.mcStats"));
         }
 
         commandSettings.put(
