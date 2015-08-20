@@ -22,17 +22,20 @@
 
 package de.lergin.sponge.messageCommands.commands;
 
+import com.google.common.reflect.TypeToken;
 import de.lergin.sponge.messageCommands.CommandSetting;
 import de.lergin.sponge.messageCommands.MessageCommands;
 import de.lergin.sponge.messageCommands.util;
 import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.spongepowered.api.util.command.CommandException;
 import org.spongepowered.api.util.command.CommandResult;
 import org.spongepowered.api.util.command.CommandSource;
+import org.spongepowered.api.util.command.args.CommandArgs;
 import org.spongepowered.api.util.command.args.CommandContext;
 import org.spongepowered.api.util.command.spec.CommandExecutor;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 
 /**
  * command for editing commands
@@ -51,38 +54,43 @@ public class EditCommand implements CommandExecutor {
                 plugin.resourceBundle.getString("command.param.name")
         ).get();
 
-        switch ((CommandSetting) args.getOne(
-                    plugin.resourceBundle.getString("command.param.setting")
-        ).get()){
-            case COMMAND:
-                node.getNode("commands").setValue(Arrays.asList(args.getOne(
-                        plugin.resourceBundle.getString("command.param.value")
-                ).get().toString().split("\\s+")));
-                break;
+        CommandSetting commandSetting = (CommandSetting) args.getOne(
+                plugin.resourceBundle.getString("command.param.setting")
+        ).get();
 
-            case DESCRIPTION:
-                node.getNode("description").setValue(args.getOne(
-                        plugin.resourceBundle.getString("command.param.value")
-                ).get());
-                break;
 
-            case EXTENDEDDESCRIPTION:
-                node.getNode("extendedDescription").setValue(args.getOne(
-                        plugin.resourceBundle.getString("command.param.value")
-                ).get());
-                break;
+        if(args.hasAny("c")){
+            node.removeChild(commandSetting.name);
+        }
 
-            case PERMISSION:
-                node.getNode("permission").setValue(args.getOne(
-                        plugin.resourceBundle.getString("command.param.value")
-                ).get());
-                break;
+        if(commandSetting.isList()){
 
-            case MESSAGE:
-                node.getNode("message").setValue(args.getOne(
-                        plugin.resourceBundle.getString("command.param.value")
-                ).get());
-                break;
+            try {
+                ArrayList<String> valueList = new ArrayList<>();
+
+                valueList.addAll(
+                        node.getNode(commandSetting.name).getList(TypeToken.of(String.class))
+                );
+
+                valueList.add(
+                        args.getOne(
+                                plugin.resourceBundle.getString("command.param.value")
+                        ).get().toString()
+                );
+
+                node.getNode(commandSetting.name).setValue(
+                        valueList
+                );
+            } catch (ObjectMappingException e) {
+                e.printStackTrace();
+            }
+
+        }else{
+
+            node.getNode(commandSetting.name).setValue(args.getOne(
+                    plugin.resourceBundle.getString("command.param.value")
+            ).get());
+
         }
 
         util.saveConfig();

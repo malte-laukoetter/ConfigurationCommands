@@ -121,10 +121,12 @@ public class util {
      */
     public static void registerCommand(ConfigurationNode node){
         //create command
-        CommandSpec.Builder commandSpecBuilder = CommandSpec.builder()
+        CommandSpec.Builder commandSpecBuilder;
+
+        commandSpecBuilder = CommandSpec.builder()
                 .executor(
                         new MessageCommandExecutor(
-                                util.getTextFromJson(node.getNode("message").getString(""))
+                                node
                         )
                 );
 
@@ -194,9 +196,13 @@ public class util {
                         GenericArguments.choices(Texts.of(
                                 plugin.resourceBundle.getString("command.param.name")
                         ), plugin.commandMap),
-                        GenericArguments.remainingJoinedStrings(Texts.of(
-                                plugin.resourceBundle.getString("command.param.value")
-                        ))
+                        GenericArguments.flags()
+                                .flag("c")
+                                .buildWith(
+                                        GenericArguments.remainingJoinedStrings(Texts.of(
+                                                plugin.resourceBundle.getString("command.param.value")
+                                        ))
+                                )
                 )
                 .build();
 
@@ -238,5 +244,9 @@ public class util {
                 deleteCmd,
                 plugin.resourceBundle.getString("command.delete.command")
         ).get();
+    }
+
+    public static MessageCommands getPlugin() {
+        return plugin;
     }
 }

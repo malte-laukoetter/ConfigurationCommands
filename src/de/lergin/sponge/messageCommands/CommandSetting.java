@@ -25,6 +25,34 @@ package de.lergin.sponge.messageCommands;
 /**
  *
  */
-public enum CommandSetting  {
-    MESSAGE, COMMAND, DESCRIPTION, EXTENDEDDESCRIPTION, PERMISSION
+public enum CommandSetting {
+    MESSAGE("message"),
+    COMMAND("command", true),
+    DESCRIPTION("description"),
+    EXTENDED_DESCRIPTION("extendedDescription"),
+    PERMISSION("permission"),
+    COMMANDS_SERVER("consoleCommands", true),
+    COMMANDS_PLAYER("playerCommands", true);
+
+    public final String name;
+    private final Boolean isList;
+
+    CommandSetting(String name, Boolean isList){
+        this.name = name;
+        this.isList = isList;
+    }
+
+    CommandSetting(String name){
+        this.name = name;
+        this.isList = false;
+    }
+
+    public Boolean isList(){
+        return this.isList;
+    }
+
+    @Override
+    public String toString() {
+        return util.getPlugin().resourceBundle.getString("command.param." + name);
+    }
 }

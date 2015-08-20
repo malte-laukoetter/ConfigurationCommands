@@ -29,6 +29,7 @@ import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.slf4j.Logger;
+import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.event.Subscribe;
 import org.spongepowered.api.event.state.ServerStartedEvent;
 import org.spongepowered.api.event.state.ServerStoppingEvent;
@@ -76,6 +77,7 @@ public class MessageCommands {
     public HashMap<String, CommandMapping> confCommands = new HashMap<>();
     public HashMap<String, ConfigurationNode> commandMap = new HashMap<>();
     public HashMap<String, CommandSetting> commandSettings = new HashMap<>();
+    public HashMap<String, Key> playerDataKeys = new HashMap<>();
     public CommandMapping editCommand;
     public CommandMapping deleteCommand;
 
@@ -114,20 +116,26 @@ public class MessageCommands {
         }
 
         commandSettings.put(
-                resourceBundle.getString("command.param.message"),
+                CommandSetting.MESSAGE.toString(),
                 CommandSetting.MESSAGE);
         commandSettings.put(
-                resourceBundle.getString("command.param.description"),
-               CommandSetting.DESCRIPTION);
+                CommandSetting.DESCRIPTION.toString(),
+                CommandSetting.DESCRIPTION);
         commandSettings.put(
-                resourceBundle.getString("command.param.extendedDescription"),
-               CommandSetting.EXTENDEDDESCRIPTION);
+                CommandSetting.EXTENDED_DESCRIPTION.toString(),
+                CommandSetting.EXTENDED_DESCRIPTION);
         commandSettings.put(
-                resourceBundle.getString("command.param.permission"),
+                CommandSetting.PERMISSION.toString(),
                 CommandSetting.PERMISSION);
         commandSettings.put(
-                resourceBundle.getString("command.param.command"),
+                CommandSetting.COMMAND.toString(),
                 CommandSetting.COMMAND);
+        commandSettings.put(
+                CommandSetting.COMMANDS_PLAYER.toString(),
+                CommandSetting.COMMANDS_PLAYER);
+        commandSettings.put(
+                CommandSetting.COMMANDS_SERVER.toString(),
+                CommandSetting.COMMANDS_SERVER);
 
         for ( Map.Entry<Object, ? extends ConfigurationNode> entry :
                 rootNode.getNode("commands").getChildrenMap().entrySet()) {

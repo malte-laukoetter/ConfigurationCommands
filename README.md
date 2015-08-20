@@ -25,7 +25,7 @@ commands {
             ts3
         ]
         description="[{color:blue,text:\"shows the ts ip\"}]"
-        extendedDescription="shows you the currnd ip of the teamspeak server"
+        extendedDescription="shows you the currned ip of the teamspeak server"
         message="[{color:blue,text:\"TS3:\"},{color:green,text:\" ts3.domain.tld\"}]"
         permission="cmd.ts3"
     }

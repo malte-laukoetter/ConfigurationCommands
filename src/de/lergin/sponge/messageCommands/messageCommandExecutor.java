@@ -22,6 +22,11 @@
 
 package de.lergin.sponge.messageCommands;
 
+import com.google.common.reflect.TypeToken;
+import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
+import org.spongepowered.api.entity.player.Player;
+import org.spongepowered.api.service.command.CommandService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.command.CommandException;
 import org.spongepowered.api.util.command.CommandResult;
@@ -29,19 +34,48 @@ import org.spongepowered.api.util.command.CommandSource;
 import org.spongepowered.api.util.command.args.CommandContext;
 import org.spongepowered.api.util.command.spec.CommandExecutor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  */
 public class MessageCommandExecutor implements CommandExecutor {
     private final Text message;
+    private List<String> consoleCommandList = new ArrayList<>();
+    private List<String> playerCommandList = new ArrayList<>();
 
-    public MessageCommandExecutor(Text message) {
-        this.message = message;
+
+    public MessageCommandExecutor(ConfigurationNode node) {
+        this.message = util.getTextFromJson(node.getNode("message").getString(""));
+
+        try {
+            this.playerCommandList = node.getNode("playerCommands").getList(TypeToken.of(String.class));
+        } catch (ObjectMappingException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            this.consoleCommandList = node.getNode("consoleCommands").getList(TypeToken.of(String.class));
+        } catch (ObjectMappingException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         src.sendMessage(message);
+
+        CommandService commandService = util.getPlugin().game.getCommandDispatcher();
+
+        for(String command : playerCommandList){
+            commandService.process(src, command);
+        }
+
+        for(String command : consoleCommandList){
+            commandService.process(util.getPlugin().game.getServer().getConsole(), command);
+        }
+
         return CommandResult.success();
     }
 }
