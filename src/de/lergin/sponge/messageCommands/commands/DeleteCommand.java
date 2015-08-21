@@ -32,7 +32,7 @@ import org.spongepowered.api.util.command.args.CommandContext;
 import org.spongepowered.api.util.command.spec.CommandExecutor;
 
 /**
- * command for editing commands
+ * command for deleting commands
  */
 public class DeleteCommand implements CommandExecutor {
 

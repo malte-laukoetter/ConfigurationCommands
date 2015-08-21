@@ -31,7 +31,6 @@ import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.spongepowered.api.util.command.CommandException;
 import org.spongepowered.api.util.command.CommandResult;
 import org.spongepowered.api.util.command.CommandSource;
-import org.spongepowered.api.util.command.args.CommandArgs;
 import org.spongepowered.api.util.command.args.CommandContext;
 import org.spongepowered.api.util.command.spec.CommandExecutor;
 
@@ -60,7 +59,7 @@ public class EditCommand implements CommandExecutor {
 
 
         if(args.hasAny("c")){
-            node.removeChild(commandSetting.name);
+            node.removeChild(commandSetting.getName());
         }
 
         if(commandSetting.isList()){
@@ -69,7 +68,7 @@ public class EditCommand implements CommandExecutor {
                 ArrayList<String> valueList = new ArrayList<>();
 
                 valueList.addAll(
-                        node.getNode(commandSetting.name).getList(TypeToken.of(String.class))
+                        node.getNode(commandSetting.getName()).getList(TypeToken.of(String.class))
                 );
 
                 valueList.add(
@@ -78,7 +77,7 @@ public class EditCommand implements CommandExecutor {
                         ).get().toString()
                 );
 
-                node.getNode(commandSetting.name).setValue(
+                node.getNode(commandSetting.getName()).setValue(
                         valueList
                 );
             } catch (ObjectMappingException e) {
@@ -87,7 +86,7 @@ public class EditCommand implements CommandExecutor {
 
         }else{
 
-            node.getNode(commandSetting.name).setValue(args.getOne(
+            node.getNode(commandSetting.getName()).setValue(args.getOne(
                     plugin.resourceBundle.getString("command.param.value")
             ).get());
 

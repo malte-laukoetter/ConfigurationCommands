@@ -22,9 +22,20 @@
 
 package de.lergin.sponge.messageCommands.commands;
 
+import de.lergin.sponge.messageCommands.CommandSetting;
 import de.lergin.sponge.messageCommands.MessageCommands;
+import de.lergin.sponge.messageCommands.data.PlayerDataKey;
 import de.lergin.sponge.messageCommands.util;
 import ninja.leaping.configurate.ConfigurationNode;
+import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.key.Key;
+import org.spongepowered.api.data.key.KeyFactory;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.entity.player.Player;
+import org.spongepowered.api.service.pagination.PaginationService;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.Texts;
+import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.util.command.CommandException;
 import org.spongepowered.api.util.command.CommandResult;
 import org.spongepowered.api.util.command.CommandSource;
@@ -34,7 +45,7 @@ import org.spongepowered.api.util.command.spec.CommandExecutor;
 import java.util.Arrays;
 
 /**
- *
+ * command for adding new commands
  */
 public class AddCommand implements CommandExecutor {
     private final MessageCommands plugin;
@@ -45,6 +56,26 @@ public class AddCommand implements CommandExecutor {
 
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
+
+        /*layer player = (Player) src;
+
+
+        Text v = Texts.of(player.get(
+                plugin.playerDataKeys.get(args.getOne(
+                        plugin.resourceBundle.getString("command.param.name")
+                ).get().toString())
+        ).get());
+
+        player.sendMessage(v);
+*/
+
+        src.sendMessage(Texts.of(
+                PlayerDataKey.HEALTH.getData((Player) src)
+        ));
+
+
+
+/*
         ConfigurationNode node = plugin.rootNode.getNode(
                 "commands",
                 args.getOne(
@@ -53,16 +84,16 @@ public class AddCommand implements CommandExecutor {
         );
 
 
-        node.getNode("message").setValue(
+        node.getNode(CommandSetting.MESSAGE.getName()).setValue(
                 args.getOne(
                         plugin.resourceBundle.getString("command.param.message")
                 ).get().toString()
         );
 
-        node.getNode("commands").setValue(
+        node.getNode(CommandSetting.COMMAND.getName()).setValue(
                 Arrays.asList(
                         args.getOne(
-                            plugin.resourceBundle.getString("command.param.command")
+                                plugin.resourceBundle.getString("command.param.command")
                         ).get().toString().split(" ")
                 )
         );
@@ -79,7 +110,7 @@ public class AddCommand implements CommandExecutor {
         util.updateDeleteCmd();
 
         src.sendMessage(util.getTextFromJsonByKey("command.add.success", node.getKey()));
-
+*/
 
         return CommandResult.success();
     }

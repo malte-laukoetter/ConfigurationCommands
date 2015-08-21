@@ -57,6 +57,12 @@ public class util {
         return Texts.of(text);
     }
 
+    /**
+     * gets the text object that is created from a json string by the resourceBundleKey
+     * @param key the resourceBundleKey of the message
+     * @param arguments replace arguments
+     * @return the text object
+     */
     public static Text getTextFromJsonByKey(String key, Object... arguments){
         return getTextFromJson(
                 String.format(
@@ -65,7 +71,12 @@ public class util {
         );
     }
 
-    public static Text getTextFromJsonByKey(String key){
+    /**
+     * gets the text object that is created from a json string by the resourceBundleKey
+     * @param key the resourceBundleKey of the message
+     * @return the text object
+     */
+    public static Text getTextFromJsonByKey(String key) {
         return getTextFromJson(
                 plugin.resourceBundle.getString(key)
         );
@@ -130,19 +141,19 @@ public class util {
                         )
                 );
 
-        if(!node.getNode("permission").isVirtual()){
-            commandSpecBuilder.permission(node.getNode("permission").getString());
+        if(!node.getNode(CommandSetting.PERMISSION.getName()).isVirtual()){
+            commandSpecBuilder.permission(node.getNode(CommandSetting.PERMISSION.getName()).getString());
         }
 
-        if(!node.getNode("description").isVirtual()){
+        if(!node.getNode(CommandSetting.DESCRIPTION.getName()).isVirtual()){
             commandSpecBuilder.description(
-                    util.getTextFromJson(node.getNode("description").getString())
+                    util.getTextFromJson(node.getNode(CommandSetting.DESCRIPTION.getName()).getString())
             );
         }
 
-        if(!node.getNode("extendedDescription").isVirtual()){
+        if(!node.getNode(CommandSetting.EXTENDED_DESCRIPTION.getName()).isVirtual()){
             commandSpecBuilder.extendedDescription(
-                    util.getTextFromJson(node.getNode("extendedDescription").getString())
+                    util.getTextFromJson(node.getNode(CommandSetting.EXTENDED_DESCRIPTION.getName()).getString())
             );
         }
 
@@ -154,7 +165,7 @@ public class util {
                     node.getKey().toString(),
                     plugin.game.getCommandDispatcher().register(plugin,
                             commandSpec,
-                            node.getNode("commands").getList(TypeToken.of(String.class))
+                            node.getNode(CommandSetting.COMMAND.getName()).getList(TypeToken.of(String.class))
                     ).get()
             );
         } catch (IllegalStateException e){
@@ -246,6 +257,10 @@ public class util {
         ).get();
     }
 
+    /**
+     * getter for the plugin object
+     * @return plugin
+     */
     public static MessageCommands getPlugin() {
         return plugin;
     }

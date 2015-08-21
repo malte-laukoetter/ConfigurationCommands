@@ -38,19 +38,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * the commandExecutor for custom commands
  */
 public class MessageCommandExecutor implements CommandExecutor {
     private final Text message;
     private List<String> consoleCommandList = new ArrayList<>();
     private List<String> playerCommandList = new ArrayList<>();
 
-
+    /**
+     * creates a new custom command
+     * @param node the configurationNode of the command
+     */
     public MessageCommandExecutor(ConfigurationNode node) {
-        this.message = util.getTextFromJson(node.getNode("message").getString(""));
+        this.message = util.getTextFromJson(node.getNode(CommandSetting.MESSAGE.getName()).getString(""));
 
         try {
-            this.playerCommandList = node.getNode("playerCommands").getList(TypeToken.of(String.class));
+            this.playerCommandList = node.getNode(CommandSetting.COMMANDS_PLAYER.getName()).getList(TypeToken.of(String.class));
         } catch (ObjectMappingException e) {
             e.printStackTrace();
         }
