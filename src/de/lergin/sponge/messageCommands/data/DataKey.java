@@ -22,43 +22,9 @@
 
 package de.lergin.sponge.messageCommands.data;
 
-import com.google.common.base.Optional;
-import org.spongepowered.api.data.key.Key;
-import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.entity.player.Player;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.Texts;
-
-
 /**
  *
  */
-public enum PlayerDataKey implements DataKey{
-    HEALTH(Keys.HEALTH, DataTypes.DOUBLE),
-    //GAME_MODE(Keys.GAME_MODE, DataTypes.GAME_MODE),
-    DISPLAY_NAME(Keys.DISPLAY_NAME, DataTypes.TEXT),
-    FOOD_LEVEL(Keys.FOOD_LEVEL, DataTypes.INTEGER),
-    //TOTAL_EXPERIENCE(Keys.TOTAL_EXPERIENCE, DataTypes.INTEGER),
-    //SKIN(Keys.SKIN, DataTypes.UUID),
-    VELOCITY(Keys.VELOCITY, DataTypes.VECTOR3D),
-    EYE_LOCATION(Keys.EYE_LOCATION, DataTypes.VECTOR3D_COORDINATES);
-
-    Key key;
-    DataTypes dataType;
-
-    PlayerDataKey(Key key, DataTypes dataType){
-        this.key = key;
-        this.dataType = dataType;
-    }
-
-    public String getData(Object player){
-
-        Optional data = ((Player) player).get(key);
-
-        if(data.isPresent()){
-            return dataType.getString(data.get());
-        } else {
-            return String.format("%s data missing.", name());
-        }
-    }
+public interface DataKey {
+    String getData(Object object);
 }

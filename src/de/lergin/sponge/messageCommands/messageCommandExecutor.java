@@ -23,11 +23,13 @@
 package de.lergin.sponge.messageCommands;
 
 import com.google.common.reflect.TypeToken;
+import de.lergin.sponge.messageCommands.data.PlayerDataKey;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.service.command.CommandService;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.util.command.CommandException;
 import org.spongepowered.api.util.command.CommandResult;
 import org.spongepowered.api.util.command.CommandSource;
@@ -41,16 +43,18 @@ import java.util.List;
  * the commandExecutor for custom commands
  */
 public class MessageCommandExecutor implements CommandExecutor {
-    private final Text message;
+    private final String message;
     private List<String> consoleCommandList = new ArrayList<>();
     private List<String> playerCommandList = new ArrayList<>();
+    private Boolean hasPlayerKey = false;
+
 
     /**
      * creates a new custom command
      * @param node the configurationNode of the command
      */
     public MessageCommandExecutor(ConfigurationNode node) {
-        this.message = util.getTextFromJson(node.getNode(CommandSetting.MESSAGE.getName()).getString(""));
+        this.message = node.getNode(CommandSetting.MESSAGE.getName()).getString("");
 
         try {
             this.playerCommandList = node.getNode(CommandSetting.COMMANDS_PLAYER.getName()).getList(TypeToken.of(String.class));
@@ -63,11 +67,40 @@ public class MessageCommandExecutor implements CommandExecutor {
         } catch (ObjectMappingException e) {
             e.printStackTrace();
         }
+
+        for(PlayerDataKey playerDataKey : PlayerDataKey.values()){
+            if(message.contains("PLAYER." + playerDataKey.name())) {
+                hasPlayerKey = true;
+                break;
+            }
+        }
     }
+
+
 
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        src.sendMessage(message);
+        String sendMessage = message;
+
+        if(hasPlayerKey) {
+            if (!args.hasAny(util.getPlugin().resourceBundle.getString("command.param.player"))
+                    && !(src instanceof Player)) {
+                src.sendMessage(util.getTextFromJsonByKey("error.need.player"));
+                return CommandResult.success();
+            } else if (args.hasAny(
+                    util.getPlugin().resourceBundle.getString("command.param.player")
+            )) {
+                sendMessage = replacePlayerKeys(
+                        sendMessage,
+                        (Player) args.getOne(util.getPlugin().resourceBundle.getString("command.param.player")).get()
+                );
+            } else {
+                sendMessage = replacePlayerKeys(sendMessage, (Player) src);
+            }
+        }
+
+
+        src.sendMessage(util.getTextFromJson(sendMessage));
 
         CommandService commandService = util.getPlugin().game.getCommandDispatcher();
 
@@ -80,5 +113,16 @@ public class MessageCommandExecutor implements CommandExecutor {
         }
 
         return CommandResult.success();
+    }
+
+
+    public String replacePlayerKeys(String text, Player player){
+        for(PlayerDataKey playerDataKey : PlayerDataKey.values()){
+            if(text.contains("PLAYER." + playerDataKey.name())) {
+                text = text.replace("PLAYER." + playerDataKey.name(), playerDataKey.getData(player));
+            }
+        }
+
+        return text;
     }
 }

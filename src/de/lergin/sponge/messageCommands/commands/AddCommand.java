@@ -56,26 +56,6 @@ public class AddCommand implements CommandExecutor {
 
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-
-        /*layer player = (Player) src;
-
-
-        Text v = Texts.of(player.get(
-                plugin.playerDataKeys.get(args.getOne(
-                        plugin.resourceBundle.getString("command.param.name")
-                ).get().toString())
-        ).get());
-
-        player.sendMessage(v);
-*/
-
-        src.sendMessage(Texts.of(
-                PlayerDataKey.HEALTH.getData((Player) src)
-        ));
-
-
-
-/*
         ConfigurationNode node = plugin.rootNode.getNode(
                 "commands",
                 args.getOne(
@@ -110,7 +90,7 @@ public class AddCommand implements CommandExecutor {
         util.updateDeleteCmd();
 
         src.sendMessage(util.getTextFromJsonByKey("command.add.success", node.getKey()));
-*/
+
 
         return CommandResult.success();
     }

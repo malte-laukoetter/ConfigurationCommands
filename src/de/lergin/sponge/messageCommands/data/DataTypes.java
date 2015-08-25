@@ -22,6 +22,8 @@
 
 package de.lergin.sponge.messageCommands.data;
 
+import com.flowpowered.math.vector.Vector3d;
+import org.spongepowered.api.entity.player.gamemode.GameMode;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
 
@@ -32,6 +34,7 @@ public enum DataTypes implements DataType {
     STRING,
     INTEGER,
     DOUBLE,
+    UUID,
     TEXT {
         @Override
         public String getString(Object text) {
@@ -43,7 +46,7 @@ public enum DataTypes implements DataType {
             return (Text) text;
         }
     },
-    BOOLEAN{
+    BOOLEAN {
         @Override
         public String getString(Object bool) {
             if((Boolean) bool){
@@ -51,6 +54,26 @@ public enum DataTypes implements DataType {
             }else{
                 return "nein";
             }
+        }
+    },
+    GAME_MODE {
+        @Override
+        public String getString(Object gm) {
+            return ((GameMode) gm).getName();
+        }
+    },
+    VECTOR3D_COORDINATES {
+        @Override
+        public String getString(Object vector) {
+            Vector3d vector3d = (Vector3d) vector;
+            return String.format("x:%d y:%d z:%d", vector3d.getFloorX(), vector3d.getFloorY(), vector3d.getFloorZ());
+        }
+    },
+    VECTOR3D {
+        @Override
+        public String getString(Object vector) {
+            Vector3d vector3d = (Vector3d) vector;
+            return String.format("x:%f y:%f z:%f", vector3d.getX(), vector3d.getY(), vector3d.getZ());
         }
     }
 }

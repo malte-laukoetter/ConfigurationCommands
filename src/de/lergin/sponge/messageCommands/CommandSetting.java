@@ -31,6 +31,7 @@ public enum CommandSetting {
     DESCRIPTION("description"),
     EXTENDED_DESCRIPTION("extendedDescription"),
     PERMISSION("permission"),
+    OTHER_PLAYER_PERMISSION("otherPlayerPermission"),
     COMMANDS_PLAYER("playerCommands", true);
 
     private final String name;

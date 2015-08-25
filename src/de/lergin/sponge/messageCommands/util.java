@@ -25,6 +25,7 @@ package de.lergin.sponge.messageCommands;
 import com.google.common.reflect.TypeToken;
 import de.lergin.sponge.messageCommands.commands.DeleteCommand;
 import de.lergin.sponge.messageCommands.commands.EditCommand;
+import de.lergin.sponge.messageCommands.data.PlayerDataKey;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.spongepowered.api.text.Text;
@@ -157,6 +158,26 @@ public class util {
             );
         }
 
+        if(hasPlayerKey(node.getNode(CommandSetting.MESSAGE.getName()).getString(""))){
+            if(!node.getNode(CommandSetting.OTHER_PLAYER_PERMISSION.getName()).isVirtual()){
+                commandSpecBuilder.arguments(
+                        GenericArguments.optional(
+                                GenericArguments.requiringPermission(
+                                        GenericArguments.player(Texts.of("Player"), plugin.game),
+                                        node.getNode(CommandSetting.OTHER_PLAYER_PERMISSION.getName()).getString()
+                                )
+                        )
+                );
+            } else{
+                commandSpecBuilder.arguments(
+                        GenericArguments.optional(
+                                GenericArguments.player(Texts.of("Player"), plugin.game)
+                        )
+                );
+            }
+        }
+
+
         CommandSpec commandSpec = commandSpecBuilder.build();
 
         try {
@@ -264,4 +285,16 @@ public class util {
     public static MessageCommands getPlugin() {
         return plugin;
     }
+
+
+    private static Boolean hasPlayerKey(String message){
+        for(PlayerDataKey playerDataKey : PlayerDataKey.values()){
+            if(message.contains("PLAYER." + playerDataKey.name())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }
