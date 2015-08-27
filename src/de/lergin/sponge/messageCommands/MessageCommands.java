@@ -24,6 +24,7 @@ package de.lergin.sponge.messageCommands;
 
 import com.google.inject.Inject;
 import de.lergin.sponge.messageCommands.commands.AddCommand;
+import de.lergin.sponge.messageCommands.data.PlayerDataKey;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
@@ -74,10 +75,10 @@ public class MessageCommands {
 
     public ConfigurationNode rootNode;
     public ResourceBundle resourceBundle;
+    public ResourceBundle fallBackResourceBundle;
     public HashMap<String, CommandMapping> confCommands = new HashMap<>();
     public HashMap<String, ConfigurationNode> commandMap = new HashMap<>();
     public HashMap<String, CommandSetting> commandSettings = new HashMap<>();
-    public HashMap<String, Key> playerDataKeys = new HashMap<>();
     public CommandMapping editCommand;
     public CommandMapping deleteCommand;
 
@@ -86,6 +87,8 @@ public class MessageCommands {
     public void onServerStart(ServerStartedEvent event){
         util.setPlugin(this);
 
+        fallBackResourceBundle = ResourceBundle.getBundle("resources/translation");
+
         //load translation
         try {
             File file = new File("config" + File.separator + "confCmd");
@@ -93,10 +96,10 @@ public class MessageCommands {
             ClassLoader loader = new URLClassLoader(urls);
             resourceBundle = ResourceBundle.getBundle("translation", Locale.getDefault(), loader);
         }catch(Exception ex) {
-            resourceBundle = ResourceBundle.getBundle("resources/translation");
-
-            logger.info(resourceBundle.getString("error.no.custom.translation"));
+            resourceBundle = fallBackResourceBundle;
+            logger.info(util.getStringFromKey("error.no.custom.translation"));
         }
+
         //load config
         try {
             rootNode = configManager.load();
@@ -112,30 +115,16 @@ public class MessageCommands {
             Metrics metrics = new Metrics(game, container);
             metrics.start();
         } catch (IOException e) {
-            logger.info(resourceBundle.getString("error.no.connection.mcStats"));
+            logger.info(util.getStringFromKey("error.no.connection.mcStats"));
         }
 
-        commandSettings.put(
-                CommandSetting.MESSAGE.toString(),
-                CommandSetting.MESSAGE);
-        commandSettings.put(
-                CommandSetting.DESCRIPTION.toString(),
-                CommandSetting.DESCRIPTION);
-        commandSettings.put(
-                CommandSetting.EXTENDED_DESCRIPTION.toString(),
-                CommandSetting.EXTENDED_DESCRIPTION);
-        commandSettings.put(
-                CommandSetting.PERMISSION.toString(),
-                CommandSetting.PERMISSION);
-        commandSettings.put(
-                CommandSetting.COMMAND.toString(),
-                CommandSetting.COMMAND);
-        commandSettings.put(
-                CommandSetting.COMMANDS_PLAYER.toString(),
-                CommandSetting.COMMANDS_PLAYER);
-        commandSettings.put(
-                CommandSetting.COMMANDS_SERVER.toString(),
-                CommandSetting.COMMANDS_SERVER);
+
+        for(CommandSetting commandSetting : CommandSetting.values()){
+            commandSettings.put(
+                    commandSetting.toString(),
+                    commandSetting);
+        }
+
 
         for ( Map.Entry<Object, ? extends ConfigurationNode> entry :
                 rootNode.getNode("commands").getChildrenMap().entrySet()) {
@@ -150,20 +139,20 @@ public class MessageCommands {
                 .executor(new AddCommand(this))
                 .arguments(
                         GenericArguments.string(Texts.of(
-                                resourceBundle.getString("command.param.name")
+                                util.getStringFromKey("command.param.name")
                         )),
                         GenericArguments.string(Texts.of(
-                                resourceBundle.getString("command.param.command")
+                                util.getStringFromKey("command.param.command")
                         )),
                         GenericArguments.remainingJoinedStrings(Texts.of(
-                                resourceBundle.getString("command.param.message")
+                                util.getStringFromKey("command.param.message")
                         ))
                 )
                 .build();
 
         game.getCommandDispatcher().register(this,
                 addCmd,
-                resourceBundle.getString("command.add.command")
+                util.getStringFromKey("command.add.command")
         ).get();
 
 
@@ -172,7 +161,7 @@ public class MessageCommands {
 
         util.createEditCmd();
 
-        logger.info(resourceBundle.getString("plugin.initialized"));
+        logger.info(util.getStringFromKey("plugin.initialized"));
 
 
 
@@ -182,13 +171,13 @@ public class MessageCommands {
             util.registerCommand(entry.getValue());
 
             logger.info(
-                    String.format(resourceBundle.getString("command.initialized"), entry.getKey())
+                    String.format(util.getStringFromKey("command.initialized"), entry.getKey())
             );
         }
     }
 
     @Subscribe
     public void onServerStop(ServerStoppingEvent event){
-        logger.info(resourceBundle.getString("plugin.stopped"));
+        logger.info(util.getStringFromKey("plugin.stopped"));
     }
 }

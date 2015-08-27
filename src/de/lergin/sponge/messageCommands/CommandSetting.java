@@ -23,7 +23,7 @@
 package de.lergin.sponge.messageCommands;
 
 /**
- *
+ * settings of commands that can be edit with the edit command
  */
 public enum CommandSetting {
     MESSAGE("message"),
@@ -31,28 +31,49 @@ public enum CommandSetting {
     DESCRIPTION("description"),
     EXTENDED_DESCRIPTION("extendedDescription"),
     PERMISSION("permission"),
-    COMMANDS_SERVER("consoleCommands", true),
+    OTHER_PLAYER_PERMISSION("otherPlayerPermission"),
     COMMANDS_PLAYER("playerCommands", true);
 
-    public final String name;
+    private final String name;
     private final Boolean isList;
 
+    /**
+     * create a CommandSetting
+     * @param name name of the setting
+     * @param isList is the setting a list/array setting
+     */
     CommandSetting(String name, Boolean isList){
         this.name = name;
         this.isList = isList;
     }
 
+    /**
+     * create a CommandSetting
+     * @param name name of the setting
+     */
     CommandSetting(String name){
         this.name = name;
         this.isList = false;
     }
 
+    /**
+     * get if the setting is a list/array
+     * @return if the setting is a list/array
+     */
     public Boolean isList(){
         return this.isList;
     }
 
+    /**
+     * get the name of the setting
+     * @return the name of the setting
+     */
+    public String getName() {
+        return name;
+    }
+
     @Override
     public String toString() {
-        return util.getPlugin().resourceBundle.getString("command.param." + name);
+        return util.getStringFromKey("command.param." + name);
     }
 }

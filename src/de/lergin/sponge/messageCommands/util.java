@@ -25,8 +25,10 @@ package de.lergin.sponge.messageCommands;
 import com.google.common.reflect.TypeToken;
 import de.lergin.sponge.messageCommands.commands.DeleteCommand;
 import de.lergin.sponge.messageCommands.commands.EditCommand;
+import de.lergin.sponge.messageCommands.data.PlayerDataKey;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
+import org.spongepowered.api.Game;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.util.command.args.GenericArguments;
@@ -44,6 +46,19 @@ public class util {
         util.plugin = plugin;
     }
 
+    /**
+     * returns the text from the resourceBundle key
+     * @param key the key of the resource
+     * @return the string of the key
+     */
+    public static String getStringFromKey(String key){
+        if(plugin.resourceBundle.containsKey(key)){
+            return plugin.resourceBundle.getString(key);
+        }else{
+            return plugin.fallBackResourceBundle.getString(key);
+        }
+    }
+
 
     /**
      * returns a text object that is created from a json string
@@ -57,17 +72,28 @@ public class util {
         return Texts.of(text);
     }
 
+    /**
+     * gets the text object that is created from a json string by the resourceBundleKey
+     * @param key the resourceBundleKey of the message
+     * @param arguments replace arguments
+     * @return the text object
+     */
     public static Text getTextFromJsonByKey(String key, Object... arguments){
         return getTextFromJson(
                 String.format(
-                        plugin.resourceBundle.getString(key), arguments
+                        getStringFromKey(key), arguments
                 )
         );
     }
 
-    public static Text getTextFromJsonByKey(String key){
+    /**
+     * gets the text object that is created from a json string by the resourceBundleKey
+     * @param key the resourceBundleKey of the message
+     * @return the text object
+     */
+    public static Text getTextFromJsonByKey(String key) {
         return getTextFromJson(
-                plugin.resourceBundle.getString(key)
+                getStringFromKey(key)
         );
     }
 
@@ -91,7 +117,7 @@ public class util {
         try {
             plugin.configManager.save(plugin.rootNode);
         } catch (IOException ex) {
-            plugin.logger.error(plugin.resourceBundle.getString("error.config.write.failed"));
+            plugin.logger.error(getStringFromKey("error.config.write.failed"));
             plugin.logger.error(ex.getMessage());
         }
     }
@@ -130,21 +156,41 @@ public class util {
                         )
                 );
 
-        if(!node.getNode("permission").isVirtual()){
-            commandSpecBuilder.permission(node.getNode("permission").getString());
+        if(!node.getNode(CommandSetting.PERMISSION.getName()).isVirtual()){
+            commandSpecBuilder.permission(node.getNode(CommandSetting.PERMISSION.getName()).getString());
         }
 
-        if(!node.getNode("description").isVirtual()){
+        if(!node.getNode(CommandSetting.DESCRIPTION.getName()).isVirtual()){
             commandSpecBuilder.description(
-                    util.getTextFromJson(node.getNode("description").getString())
+                    util.getTextFromJson(node.getNode(CommandSetting.DESCRIPTION.getName()).getString())
             );
         }
 
-        if(!node.getNode("extendedDescription").isVirtual()){
+        if(!node.getNode(CommandSetting.EXTENDED_DESCRIPTION.getName()).isVirtual()){
             commandSpecBuilder.extendedDescription(
-                    util.getTextFromJson(node.getNode("extendedDescription").getString())
+                    util.getTextFromJson(node.getNode(CommandSetting.EXTENDED_DESCRIPTION.getName()).getString())
             );
         }
+
+        if(hasPlayerKey(node.getNode(CommandSetting.MESSAGE.getName()).getString(""))){
+            if(!node.getNode(CommandSetting.OTHER_PLAYER_PERMISSION.getName()).isVirtual()){
+                commandSpecBuilder.arguments(
+                        GenericArguments.optional(
+                                GenericArguments.requiringPermission(
+                                        GenericArguments.player(Texts.of("Player"), plugin.game),
+                                        node.getNode(CommandSetting.OTHER_PLAYER_PERMISSION.getName()).getString()
+                                )
+                        )
+                );
+            } else{
+                commandSpecBuilder.arguments(
+                        GenericArguments.optional(
+                                GenericArguments.player(Texts.of("Player"), plugin.game)
+                        )
+                );
+            }
+        }
+
 
         CommandSpec commandSpec = commandSpecBuilder.build();
 
@@ -154,18 +200,18 @@ public class util {
                     node.getKey().toString(),
                     plugin.game.getCommandDispatcher().register(plugin,
                             commandSpec,
-                            node.getNode("commands").getList(TypeToken.of(String.class))
+                            node.getNode(CommandSetting.COMMAND.getName()).getList(TypeToken.of(String.class))
                     ).get()
             );
         } catch (IllegalStateException e){
             plugin.logger.error(
-                    plugin.resourceBundle.getString("error.commend.zero")
+                    getStringFromKey("error.commend.zero")
             );
         } catch (ObjectMappingException e) {
             plugin.logger.error(e.getMessage());
         } catch (IllegalArgumentException e){
             plugin.logger.warn(
-                    plugin.resourceBundle.getString("error.command.multiple.times")
+                    getStringFromKey("error.command.multiple.times")
             );
             plugin.logger.warn(e.getLocalizedMessage());
         }
@@ -191,16 +237,16 @@ public class util {
                 .executor(new EditCommand(plugin))
                 .arguments(
                         GenericArguments.choices(Texts.of(
-                                plugin.resourceBundle.getString("command.param.setting")
+                                getStringFromKey("command.param.setting")
                         ), plugin.commandSettings),
                         GenericArguments.choices(Texts.of(
-                                plugin.resourceBundle.getString("command.param.name")
+                                getStringFromKey("command.param.name")
                         ), plugin.commandMap),
                         GenericArguments.flags()
                                 .flag("c")
                                 .buildWith(
                                         GenericArguments.remainingJoinedStrings(Texts.of(
-                                                plugin.resourceBundle.getString("command.param.value")
+                                                getStringFromKey("command.param.value")
                                         ))
                                 )
                 )
@@ -208,7 +254,7 @@ public class util {
 
         plugin.editCommand = plugin.game.getCommandDispatcher().register(plugin,
                 editCmd,
-                plugin.resourceBundle.getString("command.edit.command")
+                getStringFromKey("command.edit.command")
         ).get();
     }
 
@@ -233,7 +279,7 @@ public class util {
                 .arguments(
                         GenericArguments.choices(
                                 Texts.of(
-                                        plugin.resourceBundle.getString("command.param.name")
+                                        getStringFromKey("command.param.name")
                                 ),
                                 plugin.commandMap
                         )
@@ -242,11 +288,37 @@ public class util {
 
         plugin.deleteCommand = plugin.game.getCommandDispatcher().register(plugin,
                 deleteCmd,
-                plugin.resourceBundle.getString("command.delete.command")
+                getStringFromKey("command.delete.command")
         ).get();
     }
 
+    /**
+     * getter for the plugin object
+     * @return plugin
+     */
     public static MessageCommands getPlugin() {
         return plugin;
     }
+
+    /**
+     * getter for the game object
+     * @return game
+     */
+    public static Game getGame() {
+        return plugin.game;
+    }
+
+
+
+
+    private static Boolean hasPlayerKey(String message){
+        for(PlayerDataKey playerDataKey : PlayerDataKey.values()){
+            if(message.contains("PLAYER." + playerDataKey.name())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }
