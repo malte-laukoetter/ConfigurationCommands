@@ -26,5 +26,4 @@ package de.lergin.sponge.messageCommands.data;
  *
  */
 public interface DataKey {
-    String getData(Object object);
 }

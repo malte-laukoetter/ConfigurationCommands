@@ -23,9 +23,14 @@
 package de.lergin.sponge.messageCommands.data;
 
 import com.flowpowered.math.vector.Vector3d;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.player.gamemode.GameMode;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
+import org.spongepowered.api.util.rotation.Rotation;
+
+import java.util.Date;
 
 /**
  *
@@ -38,7 +43,7 @@ public enum DataTypes implements DataType {
     TEXT {
         @Override
         public String getString(Object text) {
-            return Texts.toPlain((Text) text);
+            return Texts.json().to((Text) text);
         }
 
         @Override
@@ -74,6 +79,38 @@ public enum DataTypes implements DataType {
         public String getString(Object vector) {
             Vector3d vector3d = (Vector3d) vector;
             return String.format("x:%f y:%f z:%f", vector3d.getX(), vector3d.getY(), vector3d.getZ());
+        }
+    },
+    DATE {
+        @Override
+        public String getString(Object obj) {
+            Date date = (Date) obj;
+
+            return date.toString();
+        }
+    },
+    LIVING {
+        @Override
+        public String getString(Object obj) {
+            Living living = (Living) obj;
+
+            return living.getType().getName();
+        }
+    },
+    ENTITY {
+        @Override
+        public String getString(Object obj) {
+            Entity entity = (Entity) obj;
+
+            return entity.getType().getName();
+        }
+    },
+    ROTATION {
+        @Override
+    public String getString(Object obj) {
+            Rotation rotation = (Rotation) obj;
+
+            return rotation.getName();
         }
     }
 }

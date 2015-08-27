@@ -59,21 +59,21 @@ public class AddCommand implements CommandExecutor {
         ConfigurationNode node = plugin.rootNode.getNode(
                 "commands",
                 args.getOne(
-                        plugin.resourceBundle.getString("command.param.name")
+                        util.getStringFromKey("command.param.name")
                 ).get().toString()
         );
 
 
         node.getNode(CommandSetting.MESSAGE.getName()).setValue(
                 args.getOne(
-                        plugin.resourceBundle.getString("command.param.message")
+                        util.getStringFromKey("command.param.message")
                 ).get().toString()
         );
 
         node.getNode(CommandSetting.COMMAND.getName()).setValue(
                 Arrays.asList(
                         args.getOne(
-                                plugin.resourceBundle.getString("command.param.command")
+                                util.getStringFromKey("command.param.command")
                         ).get().toString().split(" ")
                 )
         );
