@@ -75,6 +75,7 @@ public class MessageCommands {
 
     public ConfigurationNode rootNode;
     public ResourceBundle resourceBundle;
+    public ResourceBundle fallBackResourceBundle;
     public HashMap<String, CommandMapping> confCommands = new HashMap<>();
     public HashMap<String, ConfigurationNode> commandMap = new HashMap<>();
     public HashMap<String, CommandSetting> commandSettings = new HashMap<>();
@@ -86,6 +87,8 @@ public class MessageCommands {
     public void onServerStart(ServerStartedEvent event){
         util.setPlugin(this);
 
+        fallBackResourceBundle = ResourceBundle.getBundle("resources/translation");
+
         //load translation
         try {
             File file = new File("config" + File.separator + "confCmd");
@@ -93,9 +96,8 @@ public class MessageCommands {
             ClassLoader loader = new URLClassLoader(urls);
             resourceBundle = ResourceBundle.getBundle("translation", Locale.getDefault(), loader);
         }catch(Exception ex) {
-            resourceBundle = ResourceBundle.getBundle("resources/translation");
-
-            logger.info(resourceBundle.getString("error.no.custom.translation"));
+            resourceBundle = fallBackResourceBundle;
+            logger.info(util.getStringFromKey("error.no.custom.translation"));
         }
 
         //load config
@@ -113,7 +115,7 @@ public class MessageCommands {
             Metrics metrics = new Metrics(game, container);
             metrics.start();
         } catch (IOException e) {
-            logger.info(resourceBundle.getString("error.no.connection.mcStats"));
+            logger.info(util.getStringFromKey("error.no.connection.mcStats"));
         }
 
 
@@ -137,20 +139,20 @@ public class MessageCommands {
                 .executor(new AddCommand(this))
                 .arguments(
                         GenericArguments.string(Texts.of(
-                                resourceBundle.getString("command.param.name")
+                                util.getStringFromKey("command.param.name")
                         )),
                         GenericArguments.string(Texts.of(
-                                resourceBundle.getString("command.param.command")
+                                util.getStringFromKey("command.param.command")
                         )),
                         GenericArguments.remainingJoinedStrings(Texts.of(
-                                resourceBundle.getString("command.param.message")
+                                util.getStringFromKey("command.param.message")
                         ))
                 )
                 .build();
 
         game.getCommandDispatcher().register(this,
                 addCmd,
-                resourceBundle.getString("command.add.command")
+                util.getStringFromKey("command.add.command")
         ).get();
 
 
@@ -159,7 +161,7 @@ public class MessageCommands {
 
         util.createEditCmd();
 
-        logger.info(resourceBundle.getString("plugin.initialized"));
+        logger.info(util.getStringFromKey("plugin.initialized"));
 
 
 
@@ -169,13 +171,13 @@ public class MessageCommands {
             util.registerCommand(entry.getValue());
 
             logger.info(
-                    String.format(resourceBundle.getString("command.initialized"), entry.getKey())
+                    String.format(util.getStringFromKey("command.initialized"), entry.getKey())
             );
         }
     }
 
     @Subscribe
     public void onServerStop(ServerStoppingEvent event){
-        logger.info(resourceBundle.getString("plugin.stopped"));
+        logger.info(util.getStringFromKey("plugin.stopped"));
     }
 }

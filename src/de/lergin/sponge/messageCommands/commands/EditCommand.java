@@ -50,11 +50,11 @@ public class EditCommand implements CommandExecutor {
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         ConfigurationNode node = (ConfigurationNode) args.getOne(
-                plugin.resourceBundle.getString("command.param.name")
+                util.getStringFromKey("command.param.name")
         ).get();
 
         CommandSetting commandSetting = (CommandSetting) args.getOne(
-                plugin.resourceBundle.getString("command.param.setting")
+                util.getStringFromKey("command.param.setting")
         ).get();
 
 
@@ -73,7 +73,7 @@ public class EditCommand implements CommandExecutor {
 
                 valueList.add(
                         args.getOne(
-                                plugin.resourceBundle.getString("command.param.value")
+                                util.getStringFromKey("command.param.value")
                         ).get().toString()
                 );
 
@@ -87,7 +87,7 @@ public class EditCommand implements CommandExecutor {
         }else{
 
             node.getNode(commandSetting.getName()).setValue(args.getOne(
-                    plugin.resourceBundle.getString("command.param.value")
+                    util.getStringFromKey("command.param.value")
             ).get());
 
         }

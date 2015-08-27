@@ -46,7 +46,7 @@ public class DeleteCommand implements CommandExecutor {
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 
         ConfigurationNode node = (ConfigurationNode) args.getOne(
-                plugin.resourceBundle.getString("command.param.name")
+                util.getStringFromKey("command.param.name")
         ).get();
 
         String key = node.getKey().toString();

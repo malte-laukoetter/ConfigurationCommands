@@ -74,6 +74,6 @@ public enum CommandSetting {
 
     @Override
     public String toString() {
-        return util.getPlugin().resourceBundle.getString("command.param." + name);
+        return util.getStringFromKey("command.param." + name);
     }
 }
