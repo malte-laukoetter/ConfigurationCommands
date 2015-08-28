@@ -151,7 +151,7 @@ public class util {
 
         commandSpecBuilder = CommandSpec.builder()
                 .executor(
-                        new MessageCommandExecutor(
+                        new messageCommandExecutor(
                                 node
                         )
                 );

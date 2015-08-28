@@ -23,6 +23,7 @@
 package de.lergin.sponge.messageCommands.data;
 
 import com.flowpowered.math.vector.Vector3d;
+import de.lergin.sponge.messageCommands.util;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.player.gamemode.GameMode;
@@ -30,6 +31,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.util.rotation.Rotation;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -55,9 +57,9 @@ public enum DataTypes implements DataType {
         @Override
         public String getString(Object bool) {
             if((Boolean) bool){
-                return "ja";
+                return util.getStringFromKey("true");
             }else{
-                return "nein";
+                return util.getStringFromKey("false");
             }
         }
     },
@@ -78,15 +80,24 @@ public enum DataTypes implements DataType {
         @Override
         public String getString(Object vector) {
             Vector3d vector3d = (Vector3d) vector;
-            return String.format("x:%f y:%f z:%f", vector3d.getX(), vector3d.getY(), vector3d.getZ());
+            return String.format(util.getStringFromKey("format.vector3d"), vector3d.getX(), vector3d.getY(), vector3d.getZ());
         }
     },
     DATE {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(util.getStringFromKey("format.date"));
+
         @Override
         public String getString(Object obj) {
-            Date date = (Date) obj;
+            return dateFormat.format((Date) obj);
+        }
+    },
+    TIME {
+        SimpleDateFormat timeFormat =
+                new SimpleDateFormat(util.getStringFromKey("format.time"));
 
-            return date.toString();
+        @Override
+        public String getString(Object obj) {
+            return timeFormat.format((Date) obj);
         }
     },
     LIVING {

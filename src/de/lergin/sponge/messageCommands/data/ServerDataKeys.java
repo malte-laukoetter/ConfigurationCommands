@@ -24,6 +24,8 @@ package de.lergin.sponge.messageCommands.data;
 
 import de.lergin.sponge.messageCommands.util;
 
+import java.util.Date;
+
 /**
  *
  */
@@ -57,6 +59,48 @@ public enum ServerDataKeys implements DataKey {
                 @Override
                 public Object getDataValue(){
                     return util.getGame().getServer().getOnlineMode();
+                }
+            },
+    SPONGE_API_VERSION(DataTypes.STRING)
+            {
+                @Override
+                public Object getDataValue() {
+                    return  util.getGame().getPlatform().getApiVersion();
+                }
+            },
+    MINECRAFT_VERSION(DataTypes.STRING)
+            {
+                @Override
+                public Object getDataValue() {
+                    return  util.getGame().getPlatform().getMinecraftVersion().getName();
+                }
+            },
+    VERSION(DataTypes.STRING)
+            {
+                @Override
+                public Object getDataValue() {
+                    return  util.getGame().getPlatform().getVersion();
+                }
+            },
+    DATE(DataTypes.DATE)
+            {
+                @Override
+                public Object getDataValue() {
+                    return new Date();
+                }
+            },
+    TIME(DataTypes.TIME)
+            {
+                @Override
+                public Object getDataValue() {
+                    return new Date();
+                }
+            },
+    TYPE(DataTypes.STRING)
+            {
+                @Override
+                public Object getDataValue() {
+                    return util.getGame().getPlatform().getExecutionType().toString();
                 }
             }
     ;

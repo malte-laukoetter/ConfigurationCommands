@@ -43,7 +43,7 @@ import java.util.List;
 /**
  * the commandExecutor for custom commands
  */
-public class MessageCommandExecutor implements CommandExecutor {
+public class messageCommandExecutor implements CommandExecutor {
     private final String message;
     private List<String> consoleCommandList = new ArrayList<>();
     private List<String> playerCommandList = new ArrayList<>();
@@ -54,7 +54,7 @@ public class MessageCommandExecutor implements CommandExecutor {
      * creates a new custom command
      * @param node the configurationNode of the command
      */
-    public MessageCommandExecutor(ConfigurationNode node) {
+    public messageCommandExecutor(ConfigurationNode node) {
         this.message = node.getNode(CommandSetting.MESSAGE.getName()).getString("");
 
         try {
