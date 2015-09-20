@@ -24,16 +24,14 @@ package de.lergin.sponge.messageCommands;
 
 import com.google.inject.Inject;
 import de.lergin.sponge.messageCommands.commands.AddCommand;
-import de.lergin.sponge.messageCommands.data.PlayerDataKey;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.slf4j.Logger;
-import org.spongepowered.api.data.key.Key;
-import org.spongepowered.api.event.Subscribe;
-import org.spongepowered.api.event.state.ServerStartedEvent;
-import org.spongepowered.api.event.state.ServerStoppingEvent;
+import org.spongepowered.api.event.game.state.GameStartedServerEvent;
+import org.spongepowered.api.event.game.state.GameStoppingServerEvent;
+import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.config.DefaultConfig;
@@ -83,8 +81,8 @@ public class MessageCommands {
     public CommandMapping deleteCommand;
 
 
-    @Subscribe
-    public void onServerStart(ServerStartedEvent event){
+    @Listener
+    public void onServerStart(GameStartedServerEvent event){
         util.setPlugin(this);
 
         fallBackResourceBundle = ResourceBundle.getBundle("resources/translation");
@@ -176,8 +174,8 @@ public class MessageCommands {
         }
     }
 
-    @Subscribe
-    public void onServerStop(ServerStoppingEvent event){
+    @Listener
+    public void onServerStop(GameStoppingServerEvent event){
         logger.info(util.getStringFromKey("plugin.stopped"));
     }
 }

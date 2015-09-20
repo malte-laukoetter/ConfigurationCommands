@@ -32,24 +32,28 @@ import java.util.Date;
 public enum ServerDataKeys implements DataKey {
     PLAYER_ONLINE(DataTypes.INTEGER)
             {
+                @Override
                 public Object getDataValue() {
                     return util.getGame().getServer().getOnlinePlayers().size();
                 }
             },
     SLOTS(DataTypes.INTEGER)
             {
+                @Override
                 public Object getDataValue() {
                     return util.getGame().getServer().getMaxPlayers();
                 }
             },
     MOTD(DataTypes.TEXT)
             {
+                @Override
                 public Object getDataValue() {
                     return util.getGame().getServer().getMotd();
                 }
             },
     HAS_WHITELIST(DataTypes.BOOLEAN)
             {
+                @Override
                 public Object getDataValue() {
                     return util.getGame().getServer().hasWhitelist();
                 }

@@ -27,10 +27,8 @@ import de.lergin.sponge.messageCommands.data.PlayerDataKey;
 import de.lergin.sponge.messageCommands.data.ServerDataKeys;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
-import org.spongepowered.api.entity.player.Player;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.command.CommandService;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.util.command.CommandException;
 import org.spongepowered.api.util.command.CommandResult;
 import org.spongepowered.api.util.command.CommandSource;
@@ -75,6 +73,24 @@ public class messageCommandExecutor implements CommandExecutor {
                 break;
             }
         }
+
+        if(!hasPlayerKey){
+            for(String command : playerCommandList){
+               if(command.contains("@p")){
+                   hasPlayerKey = true;
+                   break;
+               }
+            }
+
+            if(!hasPlayerKey){
+                for(String command : consoleCommandList){
+                    if(command.contains("@p")){
+                        hasPlayerKey = true;
+                        break;
+                    }
+                }
+            }
+        }
     }
 
 
@@ -91,27 +107,52 @@ public class messageCommandExecutor implements CommandExecutor {
             } else if (args.hasAny(
                     util.getStringFromKey("command.param.player")
             )) {
+                CommandService commandService = util.getPlugin().game.getCommandDispatcher();
+                Player player = (Player) args.getOne(util.getStringFromKey("command.param.player")).get();
+
                 sendMessage = replacePlayerKeys(
                         sendMessage,
-                        (Player) args.getOne(util.getStringFromKey("command.param.player")).get()
+                        player
                 );
+
+                for(String command : playerCommandList){
+                    commandService.process(src,
+                            command.replaceAll("@p", player.getName())
+                    );
+                }
+
+                for(String command : consoleCommandList){
+                    commandService.process(
+                            util.getPlugin().game.getServer().getConsole(),
+                            command.replaceAll("@p", player.getName())
+                    );
+                }
+
             } else {
-                sendMessage = replacePlayerKeys(sendMessage, (Player) src);
+                CommandService commandService = util.getPlugin().game.getCommandDispatcher();
+                Player player = (Player) src;
+
+                sendMessage = replacePlayerKeys(sendMessage, player);
+
+                for(String command : playerCommandList){
+                    commandService.process(src,
+                            command.replaceAll("@p", player.getName())
+                    );
+                }
+
+                for(String command : consoleCommandList){
+                    commandService.process(
+                            util.getPlugin().game.getServer().getConsole(),
+                            command.replaceAll("@p", player.getName())
+                    );
+                }
             }
         }
 
 
         src.sendMessage(util.getTextFromJson(replaceServerKeys(sendMessage)));
 
-        CommandService commandService = util.getPlugin().game.getCommandDispatcher();
 
-        for(String command : playerCommandList){
-            commandService.process(src, command);
-        }
-
-        for(String command : consoleCommandList){
-            commandService.process(util.getPlugin().game.getServer().getConsole(), command);
-        }
 
         return CommandResult.success();
     }

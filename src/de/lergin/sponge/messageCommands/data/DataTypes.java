@@ -26,7 +26,7 @@ import com.flowpowered.math.vector.Vector3d;
 import de.lergin.sponge.messageCommands.util;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.Living;
-import org.spongepowered.api.entity.player.gamemode.GameMode;
+import org.spongepowered.api.entity.living.player.gamemode.GameMode;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.util.rotation.Rotation;

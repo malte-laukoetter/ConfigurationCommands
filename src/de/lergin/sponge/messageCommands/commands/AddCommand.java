@@ -24,18 +24,8 @@ package de.lergin.sponge.messageCommands.commands;
 
 import de.lergin.sponge.messageCommands.CommandSetting;
 import de.lergin.sponge.messageCommands.MessageCommands;
-import de.lergin.sponge.messageCommands.data.PlayerDataKey;
 import de.lergin.sponge.messageCommands.util;
 import ninja.leaping.configurate.ConfigurationNode;
-import org.spongepowered.api.data.DataQuery;
-import org.spongepowered.api.data.key.Key;
-import org.spongepowered.api.data.key.KeyFactory;
-import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.entity.player.Player;
-import org.spongepowered.api.service.pagination.PaginationService;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.Texts;
-import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.util.command.CommandException;
 import org.spongepowered.api.util.command.CommandResult;
 import org.spongepowered.api.util.command.CommandSource;

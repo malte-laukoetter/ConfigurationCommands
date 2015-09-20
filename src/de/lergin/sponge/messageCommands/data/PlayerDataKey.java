@@ -26,10 +26,7 @@ import com.google.common.base.Optional;
 import de.lergin.sponge.messageCommands.util;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.entity.player.Player;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.Texts;
-
+import org.spongepowered.api.entity.living.player.Player;
 
 /**
  *
